@@ -159,7 +159,7 @@ def recommend():
         print(f"Could not save recommendation. AI response was: '{recommended_test_name}'")
     
     return redirect(url_for('dashboard'))
-    
+    #git
 @app.route('/find_clinics')
 @login_required
 def find_clinics():
