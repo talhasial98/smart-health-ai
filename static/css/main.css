@@ -1,0 +1,447 @@
+html{
+    font-size: 62.5%;
+}
+
+body{
+    margin:0;
+    font-family:'Poppins';
+}
+
+.wrapper{
+    max-width: 1200px;
+    margin: 0 auto;
+   
+}
+header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+header a img{
+    width:60px;
+    height: auto;
+}
+/*Navigation*/
+nav{
+    margin: 4em;
+}
+
+nav ul{
+    list-style-type: none;
+    display: flex;
+    gap: 4.1em;
+    margin: 0;
+}
+nav ul li a{
+    text-decoration: none;
+    color: black;
+    text-transform: uppercase;
+    font-size: 1.6rem;
+    position: relative;
+}
+
+nav ul li a.active:before{
+    position: absolute;
+    content:"";
+    width: 35%;
+    height: 1px;
+    border-bottom: 2px solid black;
+    bottom: -6px;
+}
+
+nav ul li a:before{
+    position: absolute;
+    content:"";
+    width: 0%;
+    height: 1px;
+    border-bottom: 2px solid grey;
+    bottom: -6px;
+    transition: width .3s;
+}
+
+/*Hero*/
+
+main{
+    display:flex;
+    gap: 8em;
+    margin-top: 9em;
+}
+
+.left-col{
+    width: 45%;
+}
+.right-col{
+    flex-grow: 1;
+}
+
+/* Left Column*/
+
+h1{
+    font-size: 5.2rem;
+    font-family: 'Playfair Display';
+    font-weight: normal;
+    margin: 0;
+}
+
+.subhead{
+    font-size: 1.8rem;
+}
+
+.cta-btns, .secondary-cta{
+    display: flex;
+    gap: 2em;
+}
+
+
+.secondary-cta:hover svg{
+    transform: translateX(10px)
+}
+
+.secondary-cta:hover{
+    background: rgb(35, 107, 130);
+    color: white;
+}
+.secondary-cta{
+    text-decoration: none;
+    color: black;
+    font-size: 1.8rem;
+    font-weight: bold;
+    display: block;
+    padding: 1em 0;
+    transition: background .3s;
+    background: rgb(218, 246, 255);
+    padding: 1em;
+    border-radius: 0.8em;
+    
+}
+
+.secondary-cta svg{
+    width: 20px;
+    transition: transform .3s;
+}
+
+.cta-btns{
+    margin: 5em 10em;
+    
+}
+
+.news{
+    display: flex;
+    gap: 5em;
+    align-items: center;
+    padding: 5em;
+    border: 1px solid black;
+    border-radius: 0.8em;
+    position: relative;
+    flex-grow: 1;
+    margin-bottom: 2em; 
+
+}
+
+.news:before{
+    position: absolute;
+    content:"";
+    background: url('../images/confetti.svg');
+    width: 80px;
+    height: 80px;
+    top: -20px;
+    left: -20px;
+    
+}
+
+p.employees{
+    font-size: 3rem;
+    font-weight: bold;
+    margin: 0;
+    color: rgb(4, 162, 4);
+    line-height: 100%;
+}
+p.details{
+    font-size: 1.4em;
+    margin: 0;
+}
+
+/* Right Column*/
+
+.right-col{
+    display: grid;
+    gap: 2.3em;
+    grid-template-columns: auto auto;
+    grid-template-areas:
+        "left ."
+        "left .";
+}
+
+
+.card1:hover{
+    background-size: 200%;
+}
+.card2:hover{
+    background-size: 160%;
+}
+.card3:hover{
+    background-size: 115%;
+}
+.card{
+    border-radius: .8em;
+    padding: 1.1em;
+    display:flex;
+    align-items: end;
+    background-size: 190%;
+    transition: background-size 0.5s;
+    margin-bottom: 2em; 
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.card1{
+    grid-area:left;
+    background-image: url(../images/health4.jpg);
+    
+    background-size: 190%;
+    transition: background-size 0.5s;
+}
+.card2{
+    background-image: url(../images/health2.jpg);
+    background-size: 150%;
+}
+
+.card3{
+
+    background-image: url(../images/secure.jpg);
+    background-size: 105%;
+}
+
+.card:hover .card-details{
+    transform: translateY(-20px);
+}
+.card-details{
+    background: white;
+    border-radius: .6em;
+    padding: 1em;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    transition: transform 0.5s;
+}
+.product-title{
+    font-size: 1.6rem;
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+    
+}
+.card-details p{
+    font-size: 1.4rem;
+    margin: 0;
+    
+}
+
+
+/* Microinteractions */
+
+nav ul li a:hover:before{
+    width:35%
+}
+
+
+main {
+    animation: growIn 2s cubic-bezier(0.075,0.82,0.165,1) forwards;
+    transform:scale(.4)
+}
+
+@keyframes growIn{
+    to{
+        transform: scaleY(1);
+    }
+}
+
+header{
+    animation: slide 2s cubic-bezier(0.075,0.82,0.165,1) forwards;
+    transform: translateY(-20px)
+}
+@keyframes slide{
+    to{
+        transform: translateY(0px);
+    }
+}
+
+form{
+    width:300px;
+}
+
+/* --- Dashboard Styling --- */
+
+/* Full-screen background */
+.dashboard-body {
+    background-color: #00A6E5; /* Bright blue background */
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 2em;
+    box-sizing: border-box;
+}
+
+/* The main floating card */
+.dashboard-container {
+    background-color: #0B4C6A; /* Dark teal/blue */
+    color: white;
+    padding: 3em 4em;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 800px; /* Control the max width of the card */
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.2), 0 0 40px rgba(10, 207, 255, 0.3); /* Drop shadow and glow */
+    display: flex;
+    flex-direction: column;
+    gap: 2.5em; /* Space between sections */
+}
+
+/* Header with Welcome message and Logout link */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 1.5em;
+}
+
+.dashboard-header h1 {
+    font-size: 2.4rem;
+    margin: 0;
+    font-weight: 500;
+}
+
+.logout-link {
+    color: #0AD7FF;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1.6rem;
+    transition: color 0.3s ease;
+}
+
+.logout-link:hover {
+    color: #6ce9ff;
+}
+
+/* Styling for the form */
+.new-assessment h2, .assessment-history h2 {
+    font-size: 2rem;
+    font-weight: 500;
+    margin-top: 0;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 2em;
+}
+
+.input-group label {
+    font-size: 1.4rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 0.5em;
+}
+
+.input-group textarea {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.6rem;
+    padding: 0.5em 0;
+    resize: vertical; /* Allow vertical resizing, but not horizontal */
+    transition: border-color 0.3s ease;
+}
+
+.input-group textarea:focus {
+    outline: none;
+    border-bottom-color: #0AD7FF; /* Highlight color on focus */
+}
+
+/* The primary glowing button */
+.primary-btn {
+    background-color: #0AD7FF;
+    color: #0B4C6A;
+    font-weight: bold;
+    font-size: 1.6rem;
+    border: none;
+    border-radius: 10px;
+    padding: 1em 2em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px rgba(10, 207, 255, 0.5);
+}
+
+.primary-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 30px rgba(10, 207, 255, 0.7);
+}
+
+/* History Section */
+.history-list {
+    max-height: 300px; /* Make the history scrollable if it gets too long */
+    overflow-y: auto;
+    padding-right: 1em; /* Add space for the scrollbar */
+}
+
+.history-item {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 1.5em;
+    border-radius: 10px;
+    margin-bottom: 1.5em;
+}
+
+.history-item p {
+    margin: 0;
+    font-size: 1.5rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.history-item p strong {
+    color: white;
+}
+
+.history-item .result-text {
+    font-weight: bold;
+    color: #0AD7FF;
+}
+
+/* Custom scrollbar for a better look */
+.history-list::-webkit-scrollbar {
+  width: 8px;
+}
+.history-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+.history-list::-webkit-scrollbar-thumb {
+  background: #0AD7FF;
+  border-radius: 10px;
+}
+.history-list::-webkit-scrollbar-thumb:hover {
+  background: #007B9A;
+}
+
+.secondary-btn {
+    background-color: transparent;
+    border: 2px solid #0AD7FF;
+    color: #0AD7FF;
+    font-weight: bold;
+    font-size: 1.4rem;
+    border-radius: 8px;
+    padding: 0.7em 1.5em;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.secondary-btn:hover {
+    background-color: #0AD7FF;
+    color: #0B4C6A;
+}

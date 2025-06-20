@@ -1,0 +1,44 @@
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Symptom Checker</title>
+    <link rel="stylesheet" href="/static/css/checker.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<a href="{{url_for('home')}}">
+            <img src="{{url_for('static',filename='images/health.jpg')}}" alt="Smart AI Health">
+    </a>
+<body>
+       {% if error %}
+        <p class="error">{{ error }}</p>
+        {% endif %}
+      
+  <div class="wrapper">
+    <div class="form-wrapper sign-in">
+      
+      <form id="auth-form" action="{{url_for('login')}}" method="post">
+        <h2>Login</h2>
+        <div class="input-group">
+          <input type="text" required name="username">
+          <label for="username">Username</label>
+        </div>
+        <div class="input-group">
+          <input type="password" required name="password">
+          <label for="password">Password</label>
+        </div>
+        <div class="remember">
+          <label><input type="checkbox"> Remember me</label>
+        </div>
+        <button type="submit">Login</button>
+        <div class="signUp-link">
+          <p>Don't have an account? <a href="{{url_for('sign_up')}}" class="signUpBtn-link">Sign Up</a></p>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Dashboard - SmartHealth AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-body">
+
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <h1>Welcome, {{ username }}!</h1>
+            <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+        </header>
+
+        <section class="new-assessment">
+            <h2>New Health Assessment</h2>
+            <p>Describe your symptoms below to get a test recommendation.</p>
+            <form action="{{ url_for('recommend') }}" method="POST">
+                <div class="input-group">
+                    <label for="symptoms">Your Symptoms</label>
+                    <textarea name="symptoms" id="symptoms" rows="6" required></textarea>
+                </div>
+                <button type="submit" class="primary-btn">Get Recommendation</button>
+            </form>
+        </section>
+        
+        <section class="assessment-history">
+    <h2>Your Appointment Requests</h2>
+    <div class="history-list">
+        {% for appt in appointments %}
+            <div class="history-item">
+                <h4>{{ appt.clinic_name }}</h4>
+                <p>
+                    <strong>Date & Time:</strong> {{ appt.appointment_datetime.strftime('%A, %B %d, %Y at %I:%M %p') }}<br>
+                    <strong>Status:</strong> <span class="result-text">{{ appt.status }}</span>
+                </p>
+            </div>
+        {% else %}
+            <p>You have no upcoming appointment requests.</p>
+        {% endfor %}
+    </div>
+</section>
+
+        <section class="assessment-history">
+            <h2>Your Assessment History</h2>
+            <div class="history-list">
+                {% for rec in recommendations %}
+                    <div class="history-item">
+                        <p><strong>Symptoms You Entered:</strong><br>{{ rec.symptoms }}</p>
+                        <p><strong>Our Recommendation:</strong><br><span class="result-text">{{ rec.results }}</span></p>
+                        <div style="text-align: right; margin-top: 10px;">
+                            <a href="{{ url_for('find_clinics', query=rec.results) }}" class="secondary-btn">
+                                Find Nearby Clinics
+                            </a>
+                        </div>
+                    </div>
+                {% else %}
+                    <p>You have no past assessments. Use the form above to get your first one.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+    </div>
+
+</body>
+</html>

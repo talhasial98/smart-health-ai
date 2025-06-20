@@ -1,0 +1,39 @@
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{url_for('static',filename='css/sign_up.css')}}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <title>Registration</title>
+</head>
+<a href="{{url_for('home')}}">
+            <img src="{{url_for('static',filename='images/health.jpg')}}" alt="Smart AI Health">
+    </a>
+<body>
+  
+    <div class="wrapper">
+    <div class="form-wrapper sign-up">
+      <form id action="{{url_for('sign_up')}}" method="post">
+        <h2>Sign Up</h2>
+        
+        <div class="input-group">
+          <input type="text" required name="username">
+          <label for="username">Username</label>
+        </div>
+        <div class="input-group">
+          <input type="password" required name="password">
+          <label for="password">Password</label>
+        </div>
+        <button type="submit">Sign Up</button>
+        <div class="signIn-link">
+          <p>Already have an account? <a href="{{url_for('login')}}" class="signInBtn-link">Sign In</a></p>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
