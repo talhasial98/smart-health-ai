@@ -1,4 +1,4 @@
-# This is the corrected workflow file for a Python/Flask App using Service Principal authentication
+# FINAL WORKFLOW using Publish Profile authentication
 
 name: Build and deploy Python app to Azure Web App - smarthealthai
 
@@ -11,9 +11,6 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
 
     steps:
       - name: Checkout repository
@@ -23,28 +20,16 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
-      - name: Create and start a virtual environment
-        run: |
-          python -m venv venv
-          source venv/bin/activate
       
       - name: Install dependencies
         run: pip install -r requirements.txt
       
-      - name: Login to Azure
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_3B2DAED662904A3196509FEAD123E626 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_81EE5BED69E24E0499C1DDF70B863CDB }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_956D2933D6BC403984B1126BEECDA7D5 }}
-
       - name: 'Deploy to Azure Web App'
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v3
+        uses: azure/webapps-deploy@v2
         with:
           app-name: 'smarthealthai'
           slot-name: 'Production'
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: .
           app-settings-json: |
             [
