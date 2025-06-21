@@ -1,4 +1,4 @@
-# FINAL WORKFLOW - Simplified for Azure's build process
+# FINAL WORKFLOW - Using Publish Profile authentication
 
 name: Build and deploy Python app to Azure Web App - smarthealthai
 
@@ -12,30 +12,24 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
-    permissions:
-      id-token: write
-      contents: read
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # We no longer need to set up Python or install dependencies here.
-      # Azure's build system (Oryx) will do it automatically.
-      
-      - name: Login to Azure
-        uses: azure/login@v2
+      - name: Set up Python version
+        uses: actions/setup-python@v5
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_3B2DAED662904A3196509FEAD123E626 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_81EE5BED69E24E0499C1DDF70B863CDB }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_956D2933D6BC403984B1126BEECDA7D5 }}
-
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      
       - name: 'Deploy to Azure Web App'
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v3
+        uses: azure/webapps-deploy@v2
         with:
           app-name: 'smarthealthai'
-          package: . # This tells Azure to run its build process on our code
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: .
           app-settings-json: |
             [
                 { "name": "GOOGLE_API_KEY", "value": "${{ secrets.GOOGLE_API_KEY }}", "slotSetting": false },
