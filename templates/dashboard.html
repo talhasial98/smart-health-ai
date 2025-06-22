@@ -16,18 +16,55 @@
             <h1>Welcome, {{ username }}!</h1>
             <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
         </header>
+ <div class="dashboard-top-section">
 
-        <section class="new-assessment">
-            <h2>New Health Assessment</h2>
-            <p>Describe your symptoms below to get a test recommendation.</p>
-            <form action="{{ url_for('recommend') }}" method="POST">
-                <div class="input-group">
-                    <label for="symptoms">Your Symptoms</label>
-                    <textarea name="symptoms" id="symptoms" rows="6" required></textarea>
+            <!-- Column 1: Your existing form (no changes needed inside) -->
+            <section class="new-assessment">
+                <h2>New Health Assessment</h2>
+                <p>Describe your symptoms below to get a test recommendation.</p>
+                <form action="{{ url_for('recommend') }}" method="POST">
+                    <div class="input-group">
+                        <label for="symptoms">Your Symptoms</label>
+                        <textarea name="symptoms" id="symptoms" rows="6" required></textarea>
+                    </div>
+                    <button type="submit" class="primary-btn">Get Recommendation</button>
+                </form>
+            </section>
+
+            <!-- Column 2: The NEW stats cards section -->
+            <section class="stats-container">
+                <div class="stat-card">
+                    <span class="stat-number">{{ stats.requested_count }}</span>
+                    <p class="stat-label">Appointments Requested</p>
                 </div>
-                <button type="submit" class="primary-btn">Get Recommendation</button>
-            </form>
-        </section>
+                <div class="stat-card">
+                    <span class="stat-number">{{ stats.completed_count }}</span>
+                    <p class="stat-label">Tests Completed</p>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">{{ recommendations | length }}</span>
+                    <p class="stat-label">Total Assessments</p>
+                </div>
+            </section>
+
+                <section class="results-alert-container">
+                    {% if completed_reports %}
+                        <div class="results-card">
+                            <p class="upcoming-title">Results Ready</p>
+                            <h4>Your report for '{{ completed_reports[0].test.name }}' is available.</h4>
+                            <p class="upcoming-detail">
+                                Completed on: {{ completed_reports[0].appointment_datetime.strftime('%A, %b %d') }}
+                            </p>
+                            <div style="text-align: right; margin-top: 15px;">
+                                <a href="{{ url_for('view_report', appointment_id=completed_reports[0].id) }}" class="primary-btn">
+                                    View Report
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+                </section>
+
+        </div>
         
         <section class="assessment-history">
     <h2>Your Appointment Requests</h2>
@@ -36,9 +73,17 @@
             <div class="history-item">
                 <h4>{{ appt.clinic_name }}</h4>
                 <p>
+                    <strong>Test:</strong> {{ appt.test.name }}<br> 
                     <strong>Date & Time:</strong> {{ appt.appointment_datetime.strftime('%A, %B %d, %Y at %I:%M %p') }}<br>
                     <strong>Status:</strong> <span class="result-text">{{ appt.status }}</span>
                 </p>
+                {% if appt.status == 'Requested' %}
+            <div style="text-align: right; margin-top: 10px;">
+                <form action="{{ url_for('complete_appointment', appointment_id=appt.id) }}" method="POST" style="display: inline;">
+                    <button type="submit" class="secondary-btn">Mark as Complete</button>
+                </form>
+            </div>
+        {% endif %}
             </div>
         {% else %}
             <p>You have no upcoming appointment requests.</p>
@@ -52,15 +97,24 @@
                 {% for rec in recommendations %}
                     <div class="history-item">
                         <p><strong>Symptoms You Entered:</strong><br>{{ rec.symptoms }}</p>
-                        <p><strong>Our Recommendation:</strong><br><span class="result-text">{{ rec.results }}</span></p>
+                        <p><strong>Our Recommendation:</strong><br><span class="result-text">{{ rec.test.name }}</span></p>
+
                         <div style="text-align: right; margin-top: 10px;">
-                            <a href="{{ url_for('find_clinics', query=rec.results) }}" class="secondary-btn">
-                                Find Nearby Clinics
-                            </a>
+                            {% if rec.test.is_in_house %}
+                                <!-- If the test is in-house, show the direct schedule button -->
+                                <a href="{{ url_for('schedule_appointment', clinic_name='SmartHealth Central Lab',test_id=rec.test.id) }}" class="primary-btn">
+                                    Schedule at Our Lab
+                                </a>
+                            {% else %}
+                                <!-- Otherwise, show the Find Clinics button -->
+                                <a href="{{ url_for('find_clinics', query=rec.test.name, test_id=rec.test.id) }}" class="secondary-btn">
+                                    Find Partner Clinics
+                                </a>
+                            {% endif %}
                         </div>
                     </div>
                 {% else %}
-                    <p>You have no past assessments. Use the form above to get your first one.</p>
+                    <p>You have no past assessments.</p>
                 {% endfor %}
             </div>
         </section>

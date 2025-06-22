@@ -445,3 +445,67 @@ form{
     background-color: #0AD7FF;
     color: #0B4C6A;
 }
+
+/* --- New Dashboard Stats Styling --- */
+
+/* Parent container for the two-column layout */
+.dashboard-top-section {
+    display: grid; /* Use grid for more control */
+    grid-template-columns: 1fr 1fr; /* Create two equal columns */
+    gap: 2.5em;
+    align-items: flex-start;
+    margin-bottom: 2.5em;
+}
+
+/* Give the form a flexible width */
+.new-assessment {
+    flex: 2; /* Make the form take up more space */
+}
+
+/* Container for the stats cards */
+.stats-container {
+    flex: 3; /* Give the stats more space to align horizontally */
+    display: flex;
+    flex-direction: row; /* THIS IS THE KEY CHANGE: Align cards in a row */
+    justify-content: space-between; /* Distribute cards evenly */
+    gap: 1.5em; /* Space between each stat card */
+}
+
+/* Styling for an individual stat card */
+.stat-card {
+    background: rgb(255, 253, 253);
+    border-radius: 10px;
+    padding: 1.2em;
+    text-align: center;
+    width: 31%
+
+}
+
+.stat-number {
+    display: block;
+    font-size: 2.8rem; /* Large number */
+    font-weight: 700;
+    color: #0b4c6a; /* Bright highlight color */
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 1.2rem;
+    color: rgba(37, 35, 49, 0.8);
+    margin-top: 0.5em;
+    margin-bottom: 0;
+}
+.report-content {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 2em;
+    border-radius: 10px;
+    margin-top: 2em;
+}
+.report-content pre {
+    white-space: pre-wrap; /* Allows text to wrap */
+    word-wrap: break-word; /* Breaks long words */
+    font-family: 'Poppins', sans-serif;
+    font-size: 2.5rem;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.7;
+}

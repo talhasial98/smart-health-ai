@@ -17,6 +17,8 @@
 
         <section class="new-assessment">
             <form method="POST">
+                <input type="hidden" name="test_id" value="{{ test.id }}">
+                <input type="hidden" name="clinic_name" value="{{ clinic_name }}">
                 <div class="input-group">
                     <label for="date">Choose a Date</label>
                     <input type="date" id="date" name="date" required style="color-scheme: dark;">

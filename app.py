@@ -13,8 +13,8 @@ app.secret_key = "dude"
 
 
 #Configure SQL Alchemy
-
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://smarthealthadmin:StrongPassword123!@smarthealth-db-server.postgres.database.azure.com/users"
+#
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 def login_required(f):
@@ -49,15 +49,56 @@ class Test(db.Model):
     name = db.Column(db.String(100), nullable=False, unique=True)
     description = db.Column(db.Text, nullable=False)
     category = db.Column(db.String(50))
+    is_in_house = db.Column(db.Boolean, nullable=False, default=True)
 
 class Appointment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     clinic_name = db.Column(db.String(200), nullable=False)
     appointment_datetime = db.Column(db.DateTime,nullable=False)
     status = db.Column(db.String(50), default='Requested',nullable=False)
+    test_id = db.Column(db.Integer, db.ForeignKey('test.id'), nullable=False)
+    test = db.relationship('Test')
     user_id = db.Column(db.Integer, db.ForeignKey('user.id',ondelete="CASCADE"))
+    report_content = db.Column(db.Text, nullable=True)
         
 #Routes
+@app.route('/complete_appointment/<int:appointment_id>', methods=['POST'])
+@login_required
+def complete_appointment(appointment_id):
+    # Step 1: Get the appointment record and the logged-in user
+    appointment = Appointment.query.get_or_404(appointment_id)
+    user = User.query.filter_by(username=session['username']).first()
+
+    # Security check: Make sure the appointment belongs to the logged-in user
+    if user and appointment.user_id == user.id:
+        
+        # Step 2: Get the full Test object using the ID from the appointment
+        test = Test.query.get(appointment.test_id)
+
+        if test: # Make sure we found a valid test
+            # Update the appointment status
+            appointment.status = 'Completed'
+            
+            # --- Generate a simulated report (using the 'test' object) ---
+            report_header = f"Results for: {test.name}" # CORRECT: Uses the test name
+            report_body = f"This is a simulated report for your test performed at {appointment.clinic_name} on {appointment.appointment_datetime.strftime('%Y-%m-%d')}."
+            
+            # Add fake "data" based on the test's category
+            if "Blood" in test.category: # CORRECT: Uses the test category
+                report_data = "\n\nWhite Blood Cell Count: 4.8 (Normal Range: 4.5-11.0)\nRed Blood Cell Count: 5.1 (Normal Range: 4.7-6.1)\nHemoglobin: 15.2 g/dL (Normal Range: 13.5-17.5)"
+            elif "Imaging" in test.category: # CORRECT: Uses the test category
+                report_data = "\n\nRadiologist's Findings: The diagnostic images show no abnormalities. All structures appear within normal limits."
+            else:
+                report_data = "\n\nAll results appear to be within normal ranges. Please consult your physician for a full interpretation."
+
+            appointment.report_content = f"{report_header}\n{'-'*20}\n{report_body}\n{report_data}"
+            
+            db.session.commit()
+            flash(f"Results for '{test.name}' are now available!", "success") # CORRECT: Uses the test name
+        else:
+            flash("Could not find the associated test for this appointment.", "danger")
+
+    return redirect(url_for('dashboard'))
 @app.route('/')
 def home():
     if "username" in session:
@@ -100,26 +141,88 @@ def sign_up():
 
 
 #Dashboard Route
+# In app.py
+
+# In app.py
+
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    username=session['username']
+    username = session['username']
     user = User.query.filter_by(username=username).first()
+
+    # Initialize all the variables we will send to the template
+    recommendations_with_details = []
+    appointments = []
+    stats = {
+        'total_appointments': 0,
+        'requested_count': 0,
+        'completed_count': 0
+    }
+    upcoming_appointment = None
+    completed_reports = []
     if user:
-        recommendations = Recommendation.query.filter_by(user_id=user.id).order_by(Recommendation.id.desc()).all()
-        appointments = Appointment.query.filter_by(user_id=user.id).order_by(Appointment.id.desc()).all()
-    else:
+        # --- PART 1: YOUR EXISTING RECOMMENDATION LOGIC (UNCHANGED) ---
+        all_tests = Test.query.all()
+        tests_by_name = {test.name: test for test in all_tests}
+        user_recommendations = Recommendation.query.filter_by(user_id=user.id).order_by(Recommendation.id.desc()).all()
+        
+        for rec in user_recommendations:
+            test_object = tests_by_name.get(rec.results)
+            if test_object:
+                recommendations_with_details.append({
+                    'symptoms': rec.symptoms,
+                    'test': test_object
+                })
 
-        recommendations = []
+        # --- PART 2: YOUR EXISTING APPOINTMENT LOGIC & NEW STATS LOGIC ---
+        # Fetch all appointments for this user
+        appointments = Appointment.query.filter_by(user_id=user.id).order_by(Appointment.appointment_datetime.desc()).all()
+        
+        # Calculate the statistics using the 'appointments' list we just fetched
+        stats['total_appointments'] = len(appointments)
+        for appt in appointments:
+            if appt.status == 'Requested':
+                stats['requested_count'] += 1
+            elif appt.status == 'Completed':
+                stats['completed_count'] += 1
+        
+        now_utc = datetime.now(timezone.utc)
+        upcoming_appointment = Appointment.query.filter(
+            Appointment.user_id == user.id,
+            Appointment.appointment_datetime > now_utc,
+            Appointment.status == 'Requested' # Only show 'Requested' appointments
+        ).order_by(Appointment.appointment_datetime.asc()).first()
 
-    return render_template("dashboard.html",username=username,recommendations=recommendations,appointments=appointments)
+        completed_reports = Appointment.query.filter_by(
+        user_id=user.id, 
+        status='Completed'
+    ).order_by(Appointment.appointment_datetime.desc()).all()
+    
 
-
+    # --- PART 3: SEND ALL DATA TO THE TEMPLATE ---
+    # We are sending all the original data PLUS the new 'stats' dictionary
+    return render_template("dashboard.html", 
+                           username=username, 
+                           recommendations=recommendations_with_details, 
+                           appointments=appointments,
+                           stats=stats, upcoming_appointment=upcoming_appointment,completed_reports=completed_reports)
 #Logout Route
 @app.route('/logout')
 def logout():
     session.pop('username',None)
     return redirect(url_for('home'))
+#Report Route
+@app.route('/report/<int:appointment_id>')
+@login_required
+def view_report(appointment_id):
+    appointment = Appointment.query.get_or_404(appointment_id)
+    # Security check
+    if appointment.user.username != session['username']:
+        flash("You are not authorized to view this report.", "danger")
+        return redirect(url_for('dashboard'))
+
+    return render_template('report.html', appointment=appointment)
 
 #Recommend Route
 @app.route('/recommend', methods=['POST'])
@@ -184,6 +287,7 @@ def schedule_appointment():
     clinic_name = request.args.get('clinic_name')
 
     if request.method == 'POST':
+        test_id = request.form['test_id']
         date_str = request.form['date']
         time_str = request.form['time']
         appointment_dt_str = f"{date_str} {time_str}"
@@ -193,6 +297,7 @@ def schedule_appointment():
         new_appointment = Appointment(
             clinic_name=clinic_name,
             appointment_datetime=appointment_datetime,
+            test_id=test_id,
             user_id = user.id
         )
         db.session.add(new_appointment)
@@ -200,7 +305,10 @@ def schedule_appointment():
 
         flash(f"Your appointment request for {clinic_name} has been submitted!", "success")
         return redirect(url_for('dashboard'))
-    return render_template('schedule.html', clinic_name=clinic_name)
+    test_id = request.args.get('test_id')
+    test = Test.query.get(test_id)
+    clinic_name = request.args.get('clinic_name')
+    return render_template('schedule.html', clinic_name=clinic_name,test=test)
 
 
 
@@ -208,6 +316,7 @@ def schedule_appointment():
 
 if __name__ == '__main__':
     with app.app_context():
+        db.drop_all()
         db.create_all()
         if not Test.query.first():
             print("Test table is empty. Seeding with initial data...")
@@ -236,12 +345,12 @@ if __name__ == '__main__':
                     Test(name="Allergy Panel (IgE)", description="Tests for allergic reactions to common substances like pollen, mold, and pet dander by measuring IgE antibodies.", category="Blood Test"),
 
                     # Cardiology
-                    Test(name="Electrocardiogram (ECG/EKG)", description="Records the electrical signal from the heart to check for different heart conditions. Recommended for palpitations or chest pain.", category="Cardiology"),
+                    Test(name="Electrocardiogram (ECG/EKG)", description="Records the electrical signal from the heart to check for different heart conditions. Recommended for palpitations or chest pain.", category="Cardiology",is_in_house=False),
                     
                     # Imaging & Consultation
-                    Test(name="Chest X-Ray", description="A diagnostic imaging test used to examine the chest and the organs and structures located in the chest.", category="Imaging"),
-                    Test(name="Abdominal Ultrasound", description="A noninvasive procedure used to assess the organs and structures within the abdomen, such as the liver, gallbladder, and kidneys.", category="Imaging"),
-                    Test(name="Neurological Consultation", description="A specialist consultation to evaluate the nervous system's function, often recommended for persistent headaches, dizziness, or numbness.", category="Consultation")
+                    Test(name="Chest X-Ray", description="A diagnostic imaging test used to examine the chest and the organs and structures located in the chest.", category="Imaging",is_in_house=False),
+                    Test(name="Abdominal Ultrasound", description="A noninvasive procedure used to assess the organs and structures within the abdomen, such as the liver, gallbladder, and kidneys.", category="Imaging",is_in_house=False),
+                    Test(name="Neurological Consultation", description="A specialist consultation to evaluate the nervous system's function, often recommended for persistent headaches, dizziness, or numbness.", category="Consultation",is_in_house=False)
                 ]
             db.session.bulk_save_objects(initial_tests)
             db.session.commit()
